@@ -1,11 +1,12 @@
 import './App.css';
 import SideBar from './Components/SideBar'
+import Feed from "./Components/Feed";
 
 function App() {
   return (
-    <div className="App">
-      <h1>Hey Laiba</h1>
+    <div className="app">
       <SideBar />
+      <Feed />
     </div>
   );
 }
