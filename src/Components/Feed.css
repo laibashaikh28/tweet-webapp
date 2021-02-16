@@ -4,6 +4,14 @@
     min-width: fit-content;
     overflow-y: scroll;
 }
+.feed::-webkit-scrollbar{
+    display: none;
+}
+
+.feed{
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
 
 .feed-header{
     position: sticky;
@@ -12,4 +20,9 @@
     z-index: 100;
     border: 1px solid var(--twitter-background);
     padding: 15px 20px;
+}
+.feed-header > h2{
+    font-size: 20px;
+    font-weight: 800;
+    background-color: red;
 }
