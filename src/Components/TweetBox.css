@@ -2,9 +2,24 @@
     padding-bottom: 10px;
     border-bottom: 8px solid var(--twitter-background);
     padding-right: 10px;
-    /* width: 100%; */
+    
 }
-
+input[type="file"] {
+    display: none;
+    
+}
+label{
+    cursor: pointer;
+    
+}
+.picIcon{
+    font-size: 30px !important;
+    text-transform: inherit !important;
+    border-radius: 30px !important;
+    width: 80px;
+    height: 40px !important;
+    margin: 20px !important;
+}
 .tweetBox > form{
     display: flex;
     flex-direction: column;
@@ -31,6 +46,7 @@
     height: 40px !important;
     margin-top: 20px !important;
     margin-left: auto !important;
+    float: right;
 }
 
 .tweetBox__imageInput{

@@ -28,3 +28,12 @@
     font-weight: 800;
     background-color: red;
 }
+.none{
+    display: flex;
+    align-items: flex-start;
+    padding-bottom: 10px;
+    display: block;
+}
+.none > img{
+    display: block;
+}

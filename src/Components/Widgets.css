@@ -1,6 +1,6 @@
 .widgets{
     /* flex: 0.3; */
-    /* width: 40%; */
+    width: 100%;
 }
 .widgets__input{
     display: flex;
