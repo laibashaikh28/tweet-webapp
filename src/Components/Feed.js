@@ -19,7 +19,8 @@ function Feed() {
       .collection("posts")
       .onSnapshot((snapshot) => {
         setposts(snapshot.docs.map((doc) => doc.data()));
-      });
+      })
+      console.log(posts);
   }, []);
 
   return (

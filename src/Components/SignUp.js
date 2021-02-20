@@ -89,10 +89,6 @@ const onUploadAvatar = async e =>{
 const onSignUp = e =>{
   e.preventDefault();
 
-  if(password.length < 8)  {
-    alert("Password should contain atleast 8 characters.")
-  }
-  else{
     db.auth().createUserWithEmailAndPassword(email, password)
     .then((user) => {
         console.log("logged in: ", user.user.uid);
@@ -119,14 +115,14 @@ const onSignUp = e =>{
       var errorCode = error.code;
       var errorMessage = error.message;
       // ..
-      console.log(errorMessage)
-      console.log(errorCode)
+      alert(errorMessage)
+
     });
 
   
     history.replace('/home') 
     
-  }
+  
   
 }
 
@@ -230,7 +226,7 @@ const onSignUp = e =>{
             <Grid container>
               <Grid item>
                 <Link href="/signin" variant="body2">
-                  {"Don't have an account? Sign Up"}
+                  {"Already have an account? Sign In"}
                 </Link>
               </Grid>
             </Grid>

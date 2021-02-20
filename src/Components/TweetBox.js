@@ -15,7 +15,6 @@ function TweetBox() {
 
   db.auth().onAuthStateChanged(function (user) {
     if (user) {
-      console.log("signed in");
       // User is signed in.
 
       var userId = db.auth().currentUser.uid;
@@ -24,7 +23,7 @@ function TweetBox() {
         .get()
         .then((doc) => {
           if (doc.exists) {
-            console.log("Document data:", doc.data());
+            //console.log("Document data:", doc.data());
             const data = doc.data();
             setfname(data.fullName) ;
             setuname(data.username) ;
