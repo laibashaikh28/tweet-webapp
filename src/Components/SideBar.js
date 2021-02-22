@@ -14,7 +14,7 @@ import Modal from "@material-ui/core/Modal";
 import Backdrop from "@material-ui/core/Backdrop";
 import { useSpring, animated } from "react-spring/web.cjs"; // web.cjs is required for IE 11 support
 import TweetBox from "./TweetBox";
-
+import db from '../firebase'
 const useStyles = makeStyles((theme) => ({
   modal: {
     display: "flex",
@@ -71,6 +71,15 @@ const SideBar = () => {
   const handleClose = () => {
     setOpen(false);
   };
+  const onLogout = () =>{
+    db.auth().signOut().then(() => {
+      // Sign-out successful.
+      console.log("logged out")
+    }).catch((error) => {
+      // An error happened.
+    });
+    
+  }
   return (
     <div className="Sidebar">
       <TwitterIcon className="sidebar__twitterIcon" />
@@ -82,8 +91,8 @@ const SideBar = () => {
       <Link className="link" to="/profile">
         <SidebarOption Icon={PersonOutlineIcon} text="Profile" />
       </Link>
-      <Link className="link" to="/signin">
-        <SidebarOption Icon={ExitToAppIcon} text="Logout" />
+      <Link className="link" onClick={onLogout} to="/signin">
+        <SidebarOption Icon={ExitToAppIcon} text="Logout"/>
       </Link>
       <Button
         variant="outlined"

@@ -11,6 +11,7 @@
     display: block;
     margin-left: auto;
     margin-right: auto 
+    
 }
 .edit{
         background-color: var(--twitter-color) !important;
@@ -28,3 +29,34 @@
         border-color: var(--twitter-background);
         margin-bottom: 20px !important;
 }
+p{
+    padding: 10px;
+}
+.edit__avatar{
+    border: none;
+}
+.overlay {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    opacity: 0;
+    transition: .3s ease;
+  }
+  .avcontainer {
+    position: relative;
+  }
+  
+  .avcontainer:hover .overlay {
+    opacity: 1;
+  }
+  .icon {
+    font-size: 100px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    text-align: center;
+  }

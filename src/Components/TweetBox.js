@@ -12,7 +12,7 @@ function TweetBox() {
   const [uname, setuname] = useState("")
   const [verified, setverified] = useState(false)
   const [userId, setuserId] = useState("")
-
+ 
   db.auth().onAuthStateChanged(function (user) {
     if (user) {
       // User is signed in.
@@ -64,6 +64,7 @@ function TweetBox() {
       createdOn: Date(),
       createdBy: userId,
       avatar: avatar,
+      likes: 0
     });
 
     setTweet("");

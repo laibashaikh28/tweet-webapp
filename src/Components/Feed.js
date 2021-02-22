@@ -40,6 +40,7 @@ function Feed() {
             text={post.text}
             verified={post.verified}
             createdOn={post.createdOn}
+            totalLikes ={post.likes}
           />
         ))
       ) : (

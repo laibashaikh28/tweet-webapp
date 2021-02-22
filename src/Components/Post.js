@@ -1,12 +1,26 @@
-import React from "react";
+import React, {useState} from "react";
 import { Button, Avatar } from "@material-ui/core";
 import VerifiedUserIcon from "@material-ui/icons/VerifiedUser";
-import PublishIcon from "@material-ui/icons/Publish";
-import RepeatIcon from "@material-ui/icons/Repeat";
-import ChatBubbleOutlineIcon from "@material-ui/icons/ChatBubbleOutline";
 import FavoriteBorderIcon from "@material-ui/icons/FavoriteBorder";
+import FavoriteIcon from '@material-ui/icons/Favorite';
 import "./Post.css";
-function Post({ displayName, username, text, image, avatar, createdOn, verified }) {
+
+function Post({ displayName, username, text, image, avatar, createdOn, verified, totalLikes }) {
+
+  const [liked, setliked] = useState(false)
+  const [noOfLikes, setnoOfLikes] = useState(0)
+
+ const onLike = e =>{
+   if(liked === false){
+    setliked(true)
+    setnoOfLikes(totalLikes+1)
+   }
+    
+    else{
+      setliked(false)
+      setnoOfLikes(totalLikes-1)
+    }
+  }
   return (
     <div className="post">
       <div className="post__avatar">
@@ -30,7 +44,10 @@ function Post({ displayName, username, text, image, avatar, createdOn, verified 
         <img src={image} width="100%" height="100%" />
 
         <div className="post__footer">
-          <FavoriteBorderIcon fontSize="small" /><span className="post__headerSpecial">{createdOn}</span>
+        <div>
+        <Button onClick={onLike}>{liked ? <FavoriteIcon fontSize="small" style={{color: 'rgb(224, 36, 94'}} /> :<FavoriteBorderIcon fontSize="small" />}{totalLikes}</Button>
+        </div>
+          <span className="time">{createdOn}</span>
         </div>
       </div>
     </div>

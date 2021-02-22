@@ -4,7 +4,7 @@ import SideBar from "./SideBar";
 import Widgets from "./Widgets";
 import { Grid, Box } from "@material-ui/core/";
 import "./Widgets.css";
-import SearchIcon from "@material-ui/icons/Search";
+import SearchField from "./SearchField";
 import User from "./User";
 function Profile() {
     return (
@@ -14,10 +14,7 @@ function Profile() {
           <SideBar />
         </Grid>
         <Grid item xs={9} sm={9} md={6}  >
-          <div className="widgets__input">
-            <SearchIcon className="widgets__searchIcon" />
-            <input placeholder="Search Twitter" type="text" />
-          </div>
+          <SearchField />
           <User />
            </Grid>
         <Box

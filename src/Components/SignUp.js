@@ -98,7 +98,8 @@ const onSignUp = e =>{
           username: uname,
           email: email,
           avatar: avatar,
-          verified: false 
+          verified: false,
+          status: "" 
       }
   
       var database = db.firestore().collection("users").doc(user.user.uid);
