@@ -9,7 +9,7 @@ import Backdrop from "@material-ui/core/Backdrop";
 import { useSpring, animated } from "react-spring/web.cjs"; // web.cjs is required for IE 11 support
 import PropTypes from "prop-types";
 import EditIcon from "@material-ui/icons/Edit";
-
+import Followers from "./Followers";
 const useStyles = makeStyles((theme) => ({
   modal: {
     display: "flex",
@@ -78,7 +78,6 @@ function User() {
   const [contact, setcontact] = useState(0);
   const [uname, setuname] = useState("");
   const [uid, setuid] = useState("");
-  const [verified, setverified] = useState(false);
 
   const handleOpen = () => {
     setOpen(true);
@@ -106,7 +105,6 @@ function User() {
               setavatar(doc.data().avatar);
               setemail(doc.data().email);
               setcontact(doc.data().contact);
-              setverified(doc.data().verified);
               setstatus(doc.data().status);
             } else {
               // doc.data() will be undefined in this case
@@ -119,10 +117,17 @@ function User() {
 
         db.firestore()
           .collection("posts")
-          .where("userId", "==", uid)
+          .where("createdBy", "==", user.uid)
           .get()
           .then((querySnapshot) => {
+            if(querySnapshot.size > 0)
+            {
             setposts(querySnapshot.docs.map((doc) => doc.data()));
+            console.log(posts)
+          }
+          else{
+            console.log("no such document")
+          }
           })
           .catch((error) => {
             console.log("Error getting documents: ", error);
@@ -150,14 +155,11 @@ function User() {
       contact: contact,
       status: status,
       avatar: avatar,
-      email: email,
-      username: uname,
-      verified: verified,
     };
 
     var database = db.firestore().collection("users").doc(uid);
 
-    database.set(data);
+    database.update(data);
     handleClose();
   };
 
@@ -172,6 +174,7 @@ function User() {
         <h3>{fname}</h3>
         <p>{`@ ${uname}`}</p>
         <p>{status}</p>
+        <Followers />
         <Button className="edit" onClick={handleOpen}>
           Edit Profile
         </Button>
@@ -253,9 +256,7 @@ function User() {
                       type="text"
                       label="Username"
                       value={uname}
-                      onChange={(e) => {
-                        setuname(e.target.value);
-                      }}
+                     disabled
                     />
                   </Grid>
                   <Grid item xs={6}>
@@ -266,9 +267,7 @@ function User() {
                       type="email"
                       label="Email"
                       value={email}
-                      onChange={(e) => {
-                        setemail(e.target.value)
-                      }}
+                      disabled
                     />
                   </Grid>
                   <Grid item xs={6}>

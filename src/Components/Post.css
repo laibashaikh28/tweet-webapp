@@ -45,3 +45,6 @@
     color: gray;
     margin-top: 8px;
 }
+.like:focus{
+    fill: red;
+}
