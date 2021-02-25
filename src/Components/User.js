@@ -10,6 +10,7 @@ import { useSpring, animated } from "react-spring/web.cjs"; // web.cjs is requir
 import PropTypes from "prop-types";
 import EditIcon from "@material-ui/icons/Edit";
 import Followers from "./Followers";
+
 const useStyles = makeStyles((theme) => ({
   modal: {
     display: "flex",
@@ -21,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
     border: "2px solid #000",
     boxShadow: theme.shadows[5],
     padding: theme.spacing(2, 4, 3),
-    width: '500px'
+    width: "500px",
   },
   update: {
     backgroundColor: "#50b7f5",
@@ -67,7 +68,7 @@ Fade.propTypes = {
   onExited: PropTypes.func,
 };
 
-function User() {
+function User({ uname }) {
   const [posts, setposts] = useState([]);
   const classes = useStyles();
   const [open, setOpen] = React.useState(false);
@@ -76,9 +77,10 @@ function User() {
   const [avatar, setavatar] = useState("");
   const [email, setemail] = useState("");
   const [contact, setcontact] = useState(0);
-  const [uname, setuname] = useState("");
+  const [username, setusername] = useState(uname);
   const [uid, setuid] = useState("");
-
+  const [loggedInUser, setloggedInUser] = useState("");
+  const [isLoggedIn, setisLoggedIn] = useState(false);
   const handleOpen = () => {
     setOpen(true);
   };
@@ -90,54 +92,65 @@ function User() {
   useEffect(() => {
     db.auth().onAuthStateChanged(function (user) {
       if (user) {
-        setuid(user.uid);
-        console.log(uid, "user loggedin");
-        db.firestore()
+        //setuid(user.uid);
+        const ref = db
+          .firestore()
           .collection("users")
           .doc(user.uid)
-          .get()
-          .then((doc) => {
-            if (doc.exists) {
-              console.log("Document data:", doc.data());
-              setfname(doc.data().fullName);
-              setuname(doc.data().username);
-              setcontact(doc.data().contact);
-              setavatar(doc.data().avatar);
-              setemail(doc.data().email);
-              setcontact(doc.data().contact);
-              setstatus(doc.data().status);
-            } else {
-              // doc.data() will be undefined in this case
-              console.log("No such document!");
-            }
-          })
-          .catch((error) => {
-            console.log("Error getting document:", error);
-          });
+          .onSnapshot((doc) => setloggedInUser(doc.data().username));
+        console.log(loggedInUser, "Ref");
+        if (uname === loggedInUser) {
+          setisLoggedIn(true);
+        }
 
-        db.firestore()
-          .collection("posts")
-          .where("createdBy", "==", user.uid)
-          .get()
-          .then((querySnapshot) => {
-            if(querySnapshot.size > 0)
-            {
-            setposts(querySnapshot.docs.map((doc) => doc.data()));
-            console.log(posts)
-          }
-          else{
-            console.log("no such document")
-          }
-          })
-          .catch((error) => {
-            console.log("Error getting documents: ", error);
-          });
         // User is signed in.
       } else {
         // No user is signed in.
         console.log("no user is signed in");
       }
     });
+
+    db.firestore()
+      .collection("users")
+      .where("username", "==", uname)
+      .get()
+      .then((onSnapshot) => {
+        if (onSnapshot.size > 0) {
+          let doc = onSnapshot.docs[0];
+          console.log("Document data:", doc.data());
+          setfname(doc.data().fullName);
+          setusername(doc.data().username);
+          setcontact(doc.data().contact);
+          setavatar(doc.data().avatar);
+          setemail(doc.data().email);
+          setcontact(doc.data().contact);
+          setstatus(doc.data().status);
+          setuid(doc.id);
+          console.log(uid);
+        } else {
+          // doc.data() will be undefined in this case
+          console.log("No such document!");
+        }
+      })
+      .catch((error) => {
+        console.log("Error getting document:", error);
+      });
+
+    db.firestore()
+      .collection("posts")
+      .where("createdBy", "==", uid)
+      .get()
+      .then((querySnapshot) => {
+        if (querySnapshot.size > 0) {
+          setposts(querySnapshot.docs.map((doc) => doc.data()));
+          console.log(posts);
+        } else {
+          console.log("no such document");
+        }
+      })
+      .catch((error) => {
+        console.log("Error getting documents: ", error);
+      });
   }, []);
   const onFileChange = async (e) => {
     const img = e.target.files[0];
@@ -172,12 +185,16 @@ function User() {
           style={{ height: "150px", width: "150px" }}
         />
         <h3>{fname}</h3>
-        <p>{`@ ${uname}`}</p>
+        <p>{`@ ${username}`}</p>
         <p>{status}</p>
         <Followers />
-        <Button className="edit" onClick={handleOpen}>
-          Edit Profile
-        </Button>
+        {isLoggedIn ? (
+          <Button className="edit" onClick={handleOpen}>
+            Edit Profile
+          </Button>
+        ) : (
+          <Button className="edit">Follow</Button>
+        )}
       </div>
       {posts.length > 0 ? (
         posts.map((post, i) => (
@@ -255,8 +272,8 @@ function User() {
                       name="username"
                       type="text"
                       label="Username"
-                      value={uname}
-                     disabled
+                      value={username}
+                      disabled
                     />
                   </Grid>
                   <Grid item xs={6}>

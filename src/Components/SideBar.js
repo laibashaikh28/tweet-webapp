@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect} from "react";
 import TwitterIcon from "@material-ui/icons/Twitter";
 import PersonOutlineIcon from "@material-ui/icons/PersonOutline";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
@@ -63,7 +63,19 @@ Fade.propTypes = {
 const SideBar = () => {
   const classes = useStyles();
   const [open, setOpen] = React.useState(false);
-
+const [uname, setuname] = useState("")
+  useEffect(() => {
+    db.auth().onAuthStateChanged(
+      function(user) {
+        if (user) {
+          db.firestore().collection("users").doc(user.uid).onSnapshot((doc) => setuname(doc.data().username));
+console.log(uname, "Ref")
+        } else {
+          // No user is signed in.
+        }
+      }
+    )
+  }, [])
   const handleOpen = () => {
     setOpen(true);
   };
@@ -88,7 +100,7 @@ const SideBar = () => {
       <Link className="link" to="/home">
         <SidebarOption active Icon={HomeIcon} text="Home" />
       </Link>
-      <Link className="link" to="/profile">
+      <Link className="link" to={`/profile/${uname}`}>
         <SidebarOption Icon={PersonOutlineIcon} text="Profile" />
       </Link>
       <Link className="link" onClick={onLogout} to="/signin">

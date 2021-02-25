@@ -5,8 +5,9 @@ import SignUp from "./Components/SignUp";
 import Home from "./Components/Home";
 import SignIn from "./Components/SignIn";
 import Profile from "./Components/Profile";
-
+import User from "./Components/User";
 function Routes() {
+  
   return (
     <BrowserRouter>
       <Switch>
@@ -19,7 +20,7 @@ function Routes() {
         <Route exact path="/home">
           <Home />
         </Route>
-        <Route exact path="/profile">
+        <Route exact path="/profile/:username">
           <Profile />
         </Route>
       </Switch>

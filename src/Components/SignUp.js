@@ -88,7 +88,12 @@ const onUploadAvatar = async e =>{
 }
 const onSignUp = e =>{
   e.preventDefault();
-
+const ref = db.firestore().collection("users").where("username", "==", uname).get();
+ref.then((querySnapshot)=>{
+  if(querySnapshot.size > 0){
+    alert("username already exist")
+  }
+  else{
     db.auth().createUserWithEmailAndPassword(email, password)
     .then((user) => {
         console.log("logged in: ", user.user.uid);
@@ -106,9 +111,6 @@ const onSignUp = e =>{
   
       database.set(data);
   
-      localStorage.setItem("user", JSON.stringify(email)); 
-      localStorage.setItem("loggedIn", JSON.stringify(true));
-  
       // Signed in 
       // ...
     })
@@ -121,7 +123,11 @@ const onSignUp = e =>{
     });
 
   
-    history.replace('/home') 
+    history.replace('/home')
+  }
+})
+
+     
     
   
   

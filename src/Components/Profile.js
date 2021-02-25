@@ -6,7 +6,11 @@ import { Grid, Box } from "@material-ui/core/";
 import "./Widgets.css";
 import SearchField from "./SearchField";
 import User from "./User";
+
+import { useParams } from "react-router-dom";
+
 function Profile() {
+  const { username } = useParams();
     return (
         <div className="app">
         <Grid container>
@@ -15,7 +19,7 @@ function Profile() {
         </Grid>
         <Grid item xs={9} sm={9} md={6}  >
           <SearchField />
-          <User />
+          <User uname = {username}/>
            </Grid>
         <Box
           component={Grid}

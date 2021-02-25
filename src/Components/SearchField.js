@@ -9,21 +9,23 @@ import {useHistory} from 'react-router-dom'
 function SearchField() {
 
   const [users, setusers] = useState([]);
-  const [uname, setuname] = useState([]);
+  
   var user = db.firestore().collection("users");
   const history = useHistory()
 
   useEffect(() => {
     user.onSnapshot((snapshot) => {
-      setusers(snapshot.docs.map((doc) => doc.data().fullName));
-      setuname(snapshot.docs.map((doc) => doc.data().username));
+      setusers(snapshot.docs.map((doc) => doc.data().username));
+      
     });
   }, []);
 
+
   const keyUp = (event) => {
+    
     if(event.charCode === 13){
-        console.log(event.target.value)
-        return history.push('/')
+        console.log(event.target.value, event.target.getAttribute('key'))
+        return history.push(`/profile/${event.target.value}`)
 }
 }
   return (
@@ -37,7 +39,7 @@ function SearchField() {
           id="user"
           onKeyPress={keyUp}
         />
-        <datalist id="users" >
+        <datalist id="users">
           {users.map((user, i) => (
             <option key={i} value={user} />
           ))}
