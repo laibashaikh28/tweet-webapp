@@ -25,7 +25,7 @@ function SearchField() {
     
     if(event.charCode === 13){
         console.log(event.target.value, event.target.getAttribute('key'))
-        return history.push(`/profile/${event.target.value}`)
+        history.push(`/profile/${event.target.value}`)
 }
 }
   return (

@@ -12,14 +12,14 @@ function Home() {
         <Grid item xs={3} sm={3} md={3}>
           <SideBar />
         </Grid>
-        <Grid item xs={9} sm={9} md={6}  >
+        <Grid item xs={9} sm={9} md={5}  >
             <SearchField  />
           <Feed />
         </Grid>
         <Box
           component={Grid}
           item
-          md={3}
+          md={4}
           display={{ xs: "none", sm: "none", md: "inline-block" }}
         >
           <Widgets />

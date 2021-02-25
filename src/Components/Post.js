@@ -5,14 +5,13 @@ import FavoriteBorderIcon from "@material-ui/icons/FavoriteBorder";
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import "./Post.css";
 import db from '../firebase'
-import { AddAlertRounded } from "@material-ui/icons";
 
 class Post extends React.Component{
   constructor(props){
     super(props);
     this.state = {
       liked: "",
-      uid: db.auth().currentUser.uid,
+      userId: db.auth().currentUser.uid,
       postId: "",
       ref: {},
       refLike: {}, //db.firestore().collection("likedPosts").where("postId" , "==", this.state.postId).where("likedBy", "==", this.state.uid),
@@ -42,7 +41,7 @@ this.onLike = this.onLike.bind(this);
       this.setState({
         ref: db.firestore().collection("likedPosts"),
         postRef: db.firestore().collection("posts").doc(this.state.postId),
-    // refLike: db.firestore().collection("likedPosts").where("postId" , "==",this.state.postId).where("likedBy", "==", this.state.uid),
+     refLike: db.firestore().collection("likedPosts").where("postId" , "==",this.state.postId).where("likedBy", "==", this.state.userId),
       
       })
       if(this.state.liked === "liked"){
@@ -51,25 +50,13 @@ this.onLike = this.onLike.bind(this);
       
       console.log(this.state.ref, this.state.refLike)
       
-    //   this.state.refLike.get().then((doc) => {
-    //     if (doc.exists) {
-    //       this.setState({liked: true})
-          
-    //     } else {
-    //       // doc.data() will be undefined in this case
-    //       console.log("No such document!");
-    //     }
-    //   })
-    // .catch(function (error) {
-    //   console.log("Error getting document: ", error);
-    // });
     }, 3000)
     
   }
 
 
-   onLike = async e =>{
-  const { liked, postId, noOfLikes, uid, ref, postRef, totalLikes} = this.state;
+   onLike = e =>{
+  const { liked, postId, noOfLikes, userId, ref, refLike, postRef, totalLikes} = this.state;
 
 console.log("called" , liked)
 this.setState({icon: false})
@@ -82,14 +69,14 @@ this.setState({icon: false})
     })
     let data = {
       postId : postId,
-      likedBy : uid
+      likedBy : userId
     }
-  ref.get().then((querySnapshot) => {
+  refLike.get().then((querySnapshot) => {
     if (querySnapshot.size <= 0) {
       ref.add(data)
       postRef.update({likes: totalLikes+1})
     }
-    else {alert("post already liked")}
+    else if(querySnapshot.size > 0) {alert("post already liked")}
   })
   console.log(data)
   
@@ -138,106 +125,4 @@ this.setState({icon: false})
     
   }
 }
-
-// function Post({ displayName, username, text, image, avatar, createdOn, verified, totalLikes, postId }) {
-
-//   const [liked, setliked] = useState(false)
-//   const [noOfLikes, setnoOfLikes] = useState(0)
-//   const [uid, setuid] = useState("")
-
-//   db.auth().onAuthStateChanged(function (user) {
-//     if (user) {
-//       setuid(user.uid);
-//       console.log(uid, "user loggedin");
-//       console.log(postId, "post")
-//     }
-//         })
-//         useEffect(() => {
-//           const ref = db.firestore().collection("likedPosts");
-//           const rmLike = db.firestore().collection("likedPosts").where("postId" , "==", postId).where("likedBy", "==", uid);
-//           const postRef = db.firestore().collection("posts").doc(postId);
-         
-          
-//           ref.where("likedBy", "==", uid).where("postId","==",postId).get()
-//           .then((doc) => {
-//             if (doc.exists) {
-//               //console.log("Document data:", doc.data());
-//               setliked(true)
-//               // var key = snapshot.key;
-              
-//             } else {
-//               // doc.data() will be undefined in this case
-//               console.log("No such document!");
-//               setliked(false)
-//             }
-//           })
-//           .catch((error) => {
-//             console.log("Error getting document:", error);
-//           });
-//           console.log(uid)        
-//           }
-//         , [])
-  
-
-//  const onLike = e =>{
-  
-
-//   //  if(liked === false){
-//   //   setliked(true)
-//   //   setnoOfLikes(totalLikes+1)
-    
-//   //   let data = {
-//   //     postId : postId,
-//   //     likedBy : uid
-//   //   }
-//   // ref.add(data)
-//   // console.log(data)
-//   // postRef.update({likes: noOfLikes})
-//   //  }
-
-    
-//   //   else{
-//   //     setliked(false)
-//   //     setnoOfLikes(totalLikes-1)
-//   //     postRef.update({likes: noOfLikes})
-//     //   rmLike.delete().then(() => {
-//     //     console.log("Document successfully deleted!");
-//     // }).catch((error) => {
-//     //     console.error("Error removing document: ", error);
-//     // });
-    
-//   //   }
-//    }
-//   return (
-//     <div className="post">
-//       <div className="post__avatar">
-//         <Avatar src={avatar} />
-//       </div>
-//       <div className="post__body">
-//         <div className="post__header">
-//           <div className="post__headerText">
-//             <h3>
-//               {displayName}{" "}
-//               <span className="post__headerSpecial">
-//                 {" "}
-//                 { verified && <VerifiedUserIcon className="post__badge" />}@{username}
-//               </span>
-//             </h3>
-//           </div>
-//         </div>
-//         <div className="post__headerDescription">
-//           <p>{text}</p>
-//         </div>
-//         <img src={image} width="100%" height="100%" />
-
-//         <div className="post__footer">
-//         <div>
-//         <Button onClick={onLike}>{liked ? <FavoriteIcon fontSize="small" style={{color: 'rgb(224, 36, 94'}} /> :<FavoriteBorderIcon fontSize="small" />}{totalLikes}</Button>
-//         </div>
-//           <span className="time">{createdOn}</span>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
 export default Post;

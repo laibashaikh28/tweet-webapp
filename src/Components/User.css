@@ -60,3 +60,11 @@ p{
     -ms-transform: translate(-50%, -50%);
     text-align: center;
   }
+
+  .unfollow{
+    border-radius: 20px !important;
+    margin-left: 5px !important;
+    font-weight: 500 !important;
+    padding: 5px 10px !important;
+
+  }

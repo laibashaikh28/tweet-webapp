@@ -8,33 +8,22 @@ import "./Widgets.css";
 function Feed() {
   const [posts, setposts] = useState([]);
   const [postId, setpostId] = useState([])
-const [uid, setuid] = useState("")
 const [liked, setliked] = useState([])
   useEffect(() => {
 setliked([])
-    db.auth().onAuthStateChanged(function (user) {
-      if (user) {
-        setuid(user.uid);
-
-      }
-    }
-    )
-    db.firestore()
-      .collection("posts")
-      .onSnapshot((snapshot) => {
-        setposts(snapshot.docs.map((doc) => doc.data()));
-        console.log(posts)
-      })
+    
+db.auth().onAuthStateChanged(function (user) {
+  if (user) {
       db.firestore()
       .collection("posts")
         .get()
         .then(function (querySnapshot) {
           if (querySnapshot.size > 0) {
+            setposts(querySnapshot.docs.map((doc) => doc.data()));
+            console.log(posts)
             // Contents of first document
             setpostId(querySnapshot.docs.map((doc) => {
-              db.auth().onAuthStateChanged(function (user) {
-                if (user) {
-                  setuid(user.uid);
+              
                   const ref = db.firestore().collection("likedPosts").where("postId" , "==", doc.id).where("likedBy", "==", user.uid)
                   ref.get().then( (onSnapshot) => {
                     if (onSnapshot.size > 0) {
@@ -51,9 +40,7 @@ setliked([])
                       console.log("Error getting document: ", error);
                     });
                   ;
-                }
-              }
-              )
+               
               
               return doc.id}));
 
@@ -78,6 +65,13 @@ setliked([])
         .catch(function (error) {
           console.log("Error getting document: ", error);
         });
+      }
+      else{
+        console.log("no  user is signed in")
+      }
+    }
+    )
+
   }, []);
   console.log(postId)
   console.log(liked, "liked")

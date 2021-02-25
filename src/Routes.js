@@ -11,7 +11,7 @@ function Routes() {
   return (
     <BrowserRouter>
       <Switch>
-        <Route exact path="/signin">
+        <Route exact path="/">
           <SignIn />
         </Route>
         <Route exact path="/signup">

@@ -103,7 +103,7 @@ console.log(uname, "Ref")
       <Link className="link" to={`/profile/${uname}`}>
         <SidebarOption Icon={PersonOutlineIcon} text="Profile" />
       </Link>
-      <Link className="link" onClick={onLogout} to="/signin">
+      <Link className="link" onClick={onLogout} to="/">
         <SidebarOption Icon={ExitToAppIcon} text="Logout"/>
       </Link>
       <Button

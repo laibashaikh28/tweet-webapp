@@ -81,6 +81,10 @@ function User({ uname }) {
   const [uid, setuid] = useState("");
   const [loggedInUser, setloggedInUser] = useState("");
   const [isLoggedIn, setisLoggedIn] = useState(false);
+  const [liked, setliked] = useState([]);
+  const [postId, setpostId] = useState([]);
+  const [follow, setfollow] = useState(false);
+
   const handleOpen = () => {
     setOpen(true);
   };
@@ -90,27 +94,12 @@ function User({ uname }) {
   };
 
   useEffect(() => {
+    setliked([]);
     db.auth().onAuthStateChanged(function (user) {
       if (user) {
-        //setuid(user.uid);
-        const ref = db
-          .firestore()
-          .collection("users")
-          .doc(user.uid)
-          .onSnapshot((doc) => setloggedInUser(doc.data().username));
-        console.log(loggedInUser, "Ref");
-        if (uname === loggedInUser) {
-          setisLoggedIn(true);
-        }
 
-        // User is signed in.
-      } else {
-        // No user is signed in.
-        console.log("no user is signed in");
-      }
-    });
-
-    db.firestore()
+        setloggedInUser(user.uid);
+        db.firestore()
       .collection("users")
       .where("username", "==", uname)
       .get()
@@ -127,6 +116,13 @@ function User({ uname }) {
           setstatus(doc.data().status);
           setuid(doc.id);
           console.log(uid);
+          if (uid === loggedInUser) {
+            setisLoggedIn(true);
+            console.log(uid, loggedInUser)
+          } else {
+            setisLoggedIn(false);
+            console.log(uid, loggedInUser)
+          }
         } else {
           // doc.data() will be undefined in this case
           console.log("No such document!");
@@ -144,6 +140,36 @@ function User({ uname }) {
         if (querySnapshot.size > 0) {
           setposts(querySnapshot.docs.map((doc) => doc.data()));
           console.log(posts);
+          setpostId(
+            querySnapshot.docs.map((doc) => {
+              db.auth().onAuthStateChanged(function (user) {
+                if (user) {
+                  
+                  const ref = db
+                    .firestore()
+                    .collection("likedPosts")
+                    .where("postId", "==", doc.id)
+                    .where("likedBy", "==", user.uid);
+                  ref
+                    .get()
+                    .then((onSnapshot) => {
+                      if (onSnapshot.size > 0) {
+                        setliked((prevArr) => [...prevArr, "liked"]);
+                        console.log(liked, doc.data());
+                      } else {
+                        setliked((prevArr) => [...prevArr, "notLiked"]);
+                        console.log("No such document!");
+                      }
+                    })
+                    .catch(function (error) {
+                      console.log("Error getting document: ", error);
+                    });
+                }
+              });
+
+              return doc.id;
+            })
+          );
         } else {
           console.log("no such document");
         }
@@ -151,7 +177,49 @@ function User({ uname }) {
       .catch((error) => {
         console.log("Error getting documents: ", error);
       });
+
+      const followRef = db.firestore().collection("follow").where("followedUser", "==", uid).where("followedBy", "==", loggedInUser)
+
+      followRef.get().then(querySnapshot =>{
+        if(querySnapshot.size > 0){
+          setfollow(true)
+        }
+        else{
+          setfollow(false)
+        }
+      })
+        // User is signed in.
+      } else {
+        // No user is signed in.
+        console.log("no user is signed in");
+      }
+    });
+
+    
   }, []);
+
+  const onFollow = () => {
+    const followRef = db.firestore().collection("follow");
+
+    const data = {
+      followedUser: uid,
+      followedBy: loggedInUser,
+    };
+    followRef.add(data);
+    setfollow(true);
+  };
+
+  const onUnfollow = () => {
+    const followRef = db.firestore().collection("follow").where("followedUser", "==", uid).where("followedBy", "==", loggedInUser);
+
+    followRef.get().then(function(querySnapshot) {
+      querySnapshot.forEach(function(doc) {
+        doc.ref.delete();
+      });
+    });
+    setfollow(false);
+  };
+
   const onFileChange = async (e) => {
     const img = e.target.files[0];
     const storageRef = db.storage().ref("avatar/");
@@ -170,7 +238,7 @@ function User({ uname }) {
       avatar: avatar,
     };
 
-    var database = db.firestore().collection("users").doc(uid);
+    var database = db.firestore().collection("users").doc(loggedInUser);
 
     database.update(data);
     handleClose();
@@ -187,13 +255,19 @@ function User({ uname }) {
         <h3>{fname}</h3>
         <p>{`@ ${username}`}</p>
         <p>{status}</p>
-        <Followers />
+        <Followers userId = {uid} />
         {isLoggedIn ? (
           <Button className="edit" onClick={handleOpen}>
             Edit Profile
           </Button>
+        ) : follow ? (
+          <Button variant="contained" className="unfollow" onClick={onUnfollow}>
+            Unfollow
+          </Button>
         ) : (
-          <Button className="edit">Follow</Button>
+          <Button className="edit" onClick={onFollow}>
+            Follow
+          </Button>
         )}
       </div>
       {posts.length > 0 ? (
@@ -207,6 +281,9 @@ function User({ uname }) {
             text={post.text}
             verified={post.verified}
             createdOn={post.createdOn}
+            totalLikes={post.likes}
+            postId={postId[i]}
+            liked={liked[i]}
           />
         ))
       ) : (

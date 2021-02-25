@@ -1,12 +1,47 @@
-import React from "react";
+import React, {useState, useEffect} from "react";
 import "./Followers.css";
 import { Link } from "react-router-dom";
-import { Button, Tab, Tabs, Paper } from "@material-ui/core/";
+import { Button, Tab, Tabs, Paper, Avatar, Box, Typography } from "@material-ui/core/";
 import { makeStyles } from "@material-ui/core/styles";
 import Modal from "@material-ui/core/Modal";
 import Backdrop from "@material-ui/core/Backdrop";
 import { useSpring, animated } from "react-spring/web.cjs"; // web.cjs is required for IE 11 support
 import PropTypes from "prop-types";
+import db from '../firebase'
+
+function TabPanel(props) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`scrollable-auto-tabpanel-${index}`}
+      aria-labelledby={`scrollable-auto-tab-${index}`}
+      {...other}
+    >
+      {value === index && (
+        <Box p={3}>
+          <Typography>{children}</Typography>
+        </Box>
+      )}
+    </div>
+  );
+}
+
+
+TabPanel.propTypes = {
+  children: PropTypes.node,
+  index: PropTypes.any.isRequired,
+  value: PropTypes.any.isRequired,
+};
+
+function a11yProps(index) {
+  return {
+    id: `scrollable-auto-tab-${index}`,
+    'aria-controls': `scrollable-auto-tabpanel-${index}`,
+  };
+}
 
 const useStyles = makeStyles((theme) => ({
   modal: {
@@ -53,10 +88,57 @@ Fade.propTypes = {
   onExited: PropTypes.func,
 };
 
-function Followers() {
+function Followers({userId}) {
   const classes = useStyles();
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState(0);
+  const [followerId, setfollowerId] = useState([])
+  const [followingId, setfollowingId] = useState([])
+const [followers, setfollowers] = useState([])
+const [following, setfollowing] = useState([])
+
+  useEffect(() => {
+    const followersRef = db.firestore().collection("follow").where("followedUser", "==", userId).get()
+    const followingRef = db.firestore().collection("follow").where("followedBy", "==", userId).get()
+const userRef = db.firestore().collection("users")
+
+    followersRef.then(onSnapshot =>{
+      if(onSnapshot.size > 0){
+        setfollowerId(onSnapshot.docs.map(doc => doc.data().followedBy))
+
+        followerId.forEach(followerId => {
+          return userRef.doc(followerId).onSnapshot((doc) => setfollowers(prevArr => [...prevArr, doc.data()] ))
+        }
+        
+        )
+        console.log(followers)
+      }
+      else{
+        console.log("no such document")
+      }
+    }
+    
+    )
+
+    followingRef.then(onSnapshot =>{
+      if(onSnapshot.size > 0){
+        setfollowerId(onSnapshot.docs.map(doc => doc.data().followedUser))
+
+        followingId.forEach(followingId => {
+          return userRef.doc(followingId).onSnapshot((doc) => setfollowing(prevArr => [...prevArr, doc.data()] ))
+        }
+        
+        )
+        console.log(following)
+      }
+      else{
+        console.log("no such document")
+      }
+    }
+    
+    )
+    
+  }, [])
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -99,10 +181,42 @@ function Followers() {
                 textColor="primary"
                 onChange={handleChange}
                 variant="fullWidth"
+                
               >
-                <Tab label="Followers" />
-                <Tab label="Following" />
+                <Tab label="Followers" {...a11yProps(0)} />
+                
+                <Tab label="Following" {...a11yProps(1)} />
+                
               </Tabs>
+              <TabPanel value={value} index={0}>
+              {
+                  followers.length > 0 ?
+                  followers.map(follower =>{
+                     <div>
+                    <Avatar src = {follower.avatar}/>
+                <h4>{follower.fullName}</h4>
+                </div>
+                
+                  })
+                   :
+                <h2>No Followers</h2>
+                }
+                
+      </TabPanel>
+      <TabPanel value={value} index={1}>
+      {
+                  following.length > 0 ?
+                  following.map(following =>{
+                     <div>
+                    <Avatar src = {following.avatar}/>
+                <h4>{following.fullName}</h4>
+                </div>
+                
+                  })
+                   :
+                <h2>No Following</h2>
+                }
+      </TabPanel>
             </Paper>
           </div>
         </Fade>
