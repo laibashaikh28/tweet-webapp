@@ -1,13 +1,21 @@
-import React, {useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import "./Followers.css";
 import { Link } from "react-router-dom";
-import { Button, Tab, Tabs, Paper, Avatar, Box, Typography } from "@material-ui/core/";
+import {
+  Button,
+  Tab,
+  Tabs,
+  Paper,
+  Avatar,
+  Box,
+  Typography,
+} from "@material-ui/core/";
 import { makeStyles } from "@material-ui/core/styles";
 import Modal from "@material-ui/core/Modal";
 import Backdrop from "@material-ui/core/Backdrop";
 import { useSpring, animated } from "react-spring/web.cjs"; // web.cjs is required for IE 11 support
 import PropTypes from "prop-types";
-import db from '../firebase'
+import db from "../firebase";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -29,7 +37,6 @@ function TabPanel(props) {
   );
 }
 
-
 TabPanel.propTypes = {
   children: PropTypes.node,
   index: PropTypes.any.isRequired,
@@ -39,7 +46,7 @@ TabPanel.propTypes = {
 function a11yProps(index) {
   return {
     id: `scrollable-auto-tab-${index}`,
-    'aria-controls': `scrollable-auto-tabpanel-${index}`,
+    "aria-controls": `scrollable-auto-tabpanel-${index}`,
   };
 }
 
@@ -88,57 +95,77 @@ Fade.propTypes = {
   onExited: PropTypes.func,
 };
 
-function Followers({userId}) {
+function Followers({ userId }) {
   const classes = useStyles();
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState(0);
-  const [followerId, setfollowerId] = useState([])
-  const [followingId, setfollowingId] = useState([])
-const [followers, setfollowers] = useState([])
-const [following, setfollowing] = useState([])
+  const [followerId, setfollowerId] = useState([]);
+  const [followingId, setfollowingId] = useState([]);
+  const [followers, setfollowers] = useState([]);
+  const [following, setfollowing] = useState([]);
 
   useEffect(() => {
-    const followersRef = db.firestore().collection("follow").where("followedUser", "==", userId).get()
-    const followingRef = db.firestore().collection("follow").where("followedBy", "==", userId).get()
-const userRef = db.firestore().collection("users")
+    setfollowingId([])
+    setfollowerId([])
+    setfollowers([])
+    setfollowing([])
+    const followersRef = db
+      .firestore()
+      .collection("follow")
+      .where("followedUser", "==", userId)
+      .get();
+    const followingRef = db
+      .firestore()
+      .collection("follow")
+      .where("followedBy", "==", userId)
+      .get();
+    const userRef = db.firestore().collection("users");
 
-    followersRef.then(onSnapshot =>{
-      if(onSnapshot.size > 0){
-        setfollowerId(onSnapshot.docs.map(doc => doc.data().followedBy))
+    followersRef.then((onSnapshot) => {
+      if (onSnapshot.size > 0) {
+        setfollowerId(onSnapshot.docs.map((doc) => doc.data().followedBy));
 
-        followerId.forEach(followerId => {
-          return userRef.doc(followerId).onSnapshot((doc) => setfollowers(prevArr => [...prevArr, doc.data()] ))
-        }
-        
-        )
-        console.log(followers)
+        followerId.forEach((followerId) => {
+          userRef
+            .doc(followerId)
+            .get()
+            .then((doc) => {
+              if (doc.exists) {
+                setfollowers((prevArr) => [...prevArr, doc.data()]);
+              } else {
+                console.log("no follower");
+              }
+            });
+        });
+        console.log(followers);
+      } else {
+        console.log("no such document");
       }
-      else{
-        console.log("no such document")
-      }
-    }
-    
-    )
+    });
 
-    followingRef.then(onSnapshot =>{
-      if(onSnapshot.size > 0){
-        setfollowerId(onSnapshot.docs.map(doc => doc.data().followedUser))
-
-        followingId.forEach(followingId => {
-          return userRef.doc(followingId).onSnapshot((doc) => setfollowing(prevArr => [...prevArr, doc.data()] ))
-        }
-        
-        )
-        console.log(following)
+    followingRef.then((onSnapshot) => {
+      if (onSnapshot.size > 0) {
+        setfollowingId(onSnapshot.docs.map((doc) => doc.data().followedUser));
+        console.log(followingId);
+        followingId.forEach((followingId) => {
+          userRef
+            .doc(followingId)
+            .get()
+            .then((doc) => {
+              if (doc.exists) {
+                setfollowing((prevArr) => [...prevArr, doc.data()]);
+                console.log(doc.data());
+              } else {
+                console.log("no following");
+              }
+            });
+        });
+        console.log(following);
+      } else {
+        console.log("no such document");
       }
-      else{
-        console.log("no such document")
-      }
-    }
-    
-    )
-    
-  }, [])
+    });
+  }, []);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -181,42 +208,35 @@ const userRef = db.firestore().collection("users")
                 textColor="primary"
                 onChange={handleChange}
                 variant="fullWidth"
-                
               >
                 <Tab label="Followers" {...a11yProps(0)} />
-                
+
                 <Tab label="Following" {...a11yProps(1)} />
-                
               </Tabs>
               <TabPanel value={value} index={0}>
-              {
-                  followers.length > 0 ?
-                  followers.map(follower =>{
-                     <div>
-                    <Avatar src = {follower.avatar}/>
-                <h4>{follower.fullName}</h4>
-                </div>
-                
+                {followers.length > 0 ? (
+                  followers.map((follower) => {
+                    <div>
+                      <Avatar src={follower.avatar} />
+                      <h4>{follower.fullName}</h4>
+                    </div>;
                   })
-                   :
-                <h2>No Followers</h2>
-                }
-                
-      </TabPanel>
-      <TabPanel value={value} index={1}>
-      {
-                  following.length > 0 ?
-                  following.map(following =>{
-                     <div>
-                    <Avatar src = {following.avatar}/>
-                <h4>{following.fullName}</h4>
-                </div>
-                
+                ) : (
+                  <h2>No Followers</h2>
+                )}
+              </TabPanel>
+              <TabPanel value={value} index={1}>
+                {following.length > 0 ? (
+                  following.map((follow) => {
+                    <>
+                      <Avatar src={follow.avatar} />
+                      <h4>{follow.fullName}</h4>
+                    </>
                   })
-                   :
-                <h2>No Following</h2>
-                }
-      </TabPanel>
+                ) : (
+                  <h2>No Following</h2>
+                )}
+              </TabPanel>
             </Paper>
           </div>
         </Fade>

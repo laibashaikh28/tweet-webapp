@@ -9,26 +9,29 @@ function Feed() {
   const [posts, setposts] = useState([]);
   const [postId, setpostId] = useState([])
 const [liked, setliked] = useState([])
+const [followerId, setfollowerId] = useState([])
   useEffect(() => {
 setliked([])
+setposts([])
     
 db.auth().onAuthStateChanged(function (user) {
   if (user) {
-      db.firestore()
-      .collection("posts")
-        .get()
-        .then(function (querySnapshot) {
-          if (querySnapshot.size > 0) {
-            setposts(querySnapshot.docs.map((doc) => doc.data()));
-            console.log(posts)
-            // Contents of first document
-            setpostId(querySnapshot.docs.map((doc) => {
-              
-                  const ref = db.firestore().collection("likedPosts").where("postId" , "==", doc.id).where("likedBy", "==", user.uid)
+
+    db.firestore().collection("follow").where("followedBy", "==", user.uid).get().then(snapshsot =>{
+      if(snapshsot.size > 0)
+      {
+        setfollowerId(snapshsot.docs.map(doc => doc.id))
+        followerId.forEach((follower , i) => {
+          db.firestore().collection("posts").orderBy("createdOn").where("createdBy", "==", follower).get().then(querySnapshot =>{
+            if(querySnapshot.size > 0){
+              setposts(prevArr => [...prevArr, querySnapshot.docs[i].data()])
+              console.log(posts)
+              setpostId(prevArr => [...prevArr, querySnapshot.docs[i].id])
+              const ref = db.firestore().collection("likedPosts").where("postId" , "==", querySnapshot.docs[i].id).where("likedBy", "==", user.uid)
                   ref.get().then( (onSnapshot) => {
                     if (onSnapshot.size > 0) {
                       setliked(prevArr => [...prevArr,"liked"])
-                      console.log(liked, doc.data())
+                      console.log(liked, querySnapshot.docs[i].data())
                     }
                     else{
                       setliked(prevArr => [...prevArr,"notLiked"])
@@ -39,33 +42,25 @@ db.auth().onAuthStateChanged(function (user) {
                   ) .catch(function (error) {
                       console.log("Error getting document: ", error);
                     });
-                  ;
-               
-              
-              return doc.id}));
 
-            
-            // ref.get().then((doc) => {
-            //   if (doc.exists) {
-            //     setliked(true)
-                
-            //   } else {
-            //     // doc.data() will be undefined in this case
-            //     console.log("No such document!");
-            //   }
-            // })
-          // .catch(function (error) {
-          //   console.log("Error getting document: ", error);
-          // });
-              
-          } else {
-            console.log("No such document!");
+            }
+            else{
+              console.log("no posts")
+            }
           }
-        })
-        .catch(function (error) {
-          console.log("Error getting document: ", error);
-        });
-      }
+        
+        )
+      })
+      
+    
+  }
+  else{
+    console.log("no such document")
+  }
+    
+})
+     
+}
       else{
         console.log("no  user is signed in")
       }
